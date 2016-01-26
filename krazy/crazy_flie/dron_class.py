@@ -52,7 +52,7 @@ class dron(QtGui.QWidget):
         # inicjalizacja danych zmq
         # pozycje
         self.strlist=[]
-        self.strlist.append("x,y,z,yaw,vzcam,xk,yk,zk,rollk,pitchk,yawk,,vxk,vyk,vzk,vrollk,vpitchk,vyawk,pitch_con,roll_con,yaw_con,thrust_cam,xd,yd,zd,rolld,pitchd,yawd")
+        self.strlist.append("x,y,z,yaw,vzcam,xk,yk,zk,rollk,pitchk,yawk,vxk,vyk,vzk,vrollk,vpitchk,vyawk,pitch_con,roll_con,yaw_con,thrust_cam,xd,yd,zd,rolld,pitchd,yawd")
 
         self.stan=np.zeros((1,8))
         self.isCorrect="0"
@@ -310,7 +310,7 @@ class dron(QtGui.QWidget):
             self.yaw_control=self.yaw_control_previous
             self.timeout+=1
             print self.timeout
-            if self.timeout>=30:
+            if self.timeout>=15:
                 self.control_package={
                     "thrust":0,
                     "pitch":0,
@@ -323,7 +323,7 @@ class dron(QtGui.QWidget):
             # przypisanie sterowania do sterowania poprzedniego
 
 
-            self.stan=self.kalman.licz(self.x_cam,self.y_cam,self.z_cam,self.roll_dron*pi/180,self.pitch_dron*pi/180,self.yaw_cam) #
+            self.stan=self.kalman.licz(self.x_cam,self.y_cam,self.z_cam,self.roll_dron,self.pitch_dron,self.yaw_cam) #
 
             # self.vzcam=(self.z_cam-self.z_cam_p)/self.dt
             # self.z_cam_p=self.z_cam
@@ -357,7 +357,7 @@ class dron(QtGui.QWidget):
             # self.pitch_control=fd(self.x_dron,self.vx_dron)
             # self.yaw_control=fyaw(alfa*180/pi,valfa*180/pi)
             # self.daneZ.e=self.z_dron
-            T,Y,R,P=sprzezenie.control(self.z_dron,self.vz_dron,alfa,valfa,self.x_dron,self.vx_dron,self.y_dron,self.vy_dron)
+            T,Y,R,P=sprzezenie.control(self.z_dron,self.vz_dron,alfa,valfa,self.x_dron,self.vx_dron,self.y_dron,self.vy_dron,roll,pitch,vroll,vpitch)
             self.thrust_control=T
             self.pitch_control=P
             self.roll_control=R
@@ -365,7 +365,7 @@ class dron(QtGui.QWidget):
             self.timeout=0
 
 
-            # self.thrust_control=20
+            # self.thrust_control=60
             # self.pitch_control=0.0
             # self.roll_control=0.0
             # self.yaw_control=30

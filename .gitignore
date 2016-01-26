@@ -7,6 +7,9 @@ build/*
 # PC client settings
 conf/*
 
+# logs
+krazy/*.csv
+
 # Eclipse settings
 .project
 .pydevproject
