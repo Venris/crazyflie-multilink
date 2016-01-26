@@ -1,11 +1,11 @@
 
-def control(e_wys,Vwys,orient,e_x,Vx,e_y,Vy):
+def control(e_wys,Vwys,orient,vorient,e_x,Vx,e_y,Vy):
 
     # wysokosc
-    maxT=85
-    minT=60
+    maxT=80
+    minT=55
     k1h=50
-    k2h=53
+    k2h=60
     T=60+k1h * e_wys - k2h*Vwys   # dron 40/2M k1=50,k2=53,ff=60
     if T>maxT:
         T=maxT
@@ -14,10 +14,11 @@ def control(e_wys,Vwys,orient,e_x,Vx,e_y,Vy):
     # T=0
 
     # yaw
-    maxY=10
-    minY=-10
-    ko=1
-    Y=-ko*orient
+    maxY=50
+    minY=-50
+    ko=20
+    kvo=20
+    Y=ko*orient-kvo*vorient
     if Y>maxY:
         Y=maxY
     if Y<minY:

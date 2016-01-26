@@ -9,7 +9,7 @@ import time
 from control import controlData
 from PID import PID
 import numpy as np
-from kalman import kalman8
+from kalman import kalman12
 import sprzezenie
 class dron(QtGui.QWidget):
     control_data_sig=pyqtSignal(dict)
@@ -45,14 +45,14 @@ class dron(QtGui.QWidget):
 
     def set_variables(self):
         # inicjalizacja filtru kalmana
-        self.kalman=kalman8()
+        self.kalman=kalman12()
         self.z_cam_p=0
         self.vzcam=0
 
         # inicjalizacja danych zmq
         # pozycje
         self.strlist=[]
-        self.strlist.append("x,y,z,yaw,vzcam,xk,yk,zk,vxk,vyk,vzk,yawk,vyawk,pitch,roll,yaw,thrust,xd,yd,zd")
+        self.strlist.append("x,y,z,yaw,vzcam,xk,yk,zk,rollk,pitchk,yawk,,vxk,vyk,vzk,vrollk,vpitchk,vyawk,pitch_con,roll_con,yaw_con,thrust_cam,xd,yd,zd,rolld,pitchd,yawd")
 
         self.stan=np.zeros((1,8))
         self.isCorrect="0"
@@ -78,6 +78,13 @@ class dron(QtGui.QWidget):
         self.vy_dron=0
         self.vz_dron=0
 
+
+        self.alfa_dron=0
+        self.valfa_dron=0
+
+        self.thrust_dron=0
+        self.roll_dron=0
+        self.pitch_dron=0
         self.yaw_dron=0
         self.vyaw_dron=0
 
@@ -213,16 +220,16 @@ class dron(QtGui.QWidget):
         self.ui.l_theta_2.setText("yaw: {:.3f}".format(self.yaw_cam))
 
         # predkosci
-        # self.ui.l_vx_2.setText("Vx: {:.3f}".format(self.vx_actual))
-        # self.ui.l_vy_2.setText("Vy: {:.3f}".format(self.vy_actual))
-        # self.ui.l_vz_2.setText("Vz: {:.3f}".format(self.vz_actual))
-        # self.ui.l_vtheta_2.setText("Vyaw: {:.3f}".format(self.vyaw_actual))
+        self.ui.l_vx_2.setText("thrust: {:.3f}".format(self.thrust_dron))
+        self.ui.l_vy_2.setText("roll: {:.3f}".format(self.roll_dron))
+        self.ui.l_vz_2.setText("pitch: {:.3f}".format(self.pitch_dron))
+        self.ui.l_vtheta_2.setText("yaw: {:.3f}".format(self.yaw_dron))
 
         ## labele od cf
         self.ui.l_thrust_a_2.setText("Ez: {}".format(self.z_dron))
         self.ui.l_roll_a_2.setText("Ex: {}".format(self.x_dron))
         self.ui.l_pitch_a_2.setText("Ey: {}".format(self.y_dron))
-        self.ui.l_yaw_a_2.setText("Eyaw: {}".format(self.yaw_dron))
+        self.ui.l_yaw_a_2.setText("Eyaw: {}".format(self.alfa_dron))
 
         # labele od sterowania
         self.ui.l_thrust_2.setText("Thrust: {:}".format(self.thrust_control))
@@ -303,7 +310,7 @@ class dron(QtGui.QWidget):
             self.yaw_control=self.yaw_control_previous
             self.timeout+=1
             print self.timeout
-            if self.timeout>=3:
+            if self.timeout>=30:
                 self.control_package={
                     "thrust":0,
                     "pitch":0,
@@ -311,23 +318,27 @@ class dron(QtGui.QWidget):
                     "yaw":0
                 }
                 self.control_data_sig.emit(self.control_package)
-                self.stop_control_thread()
+                self.stop_clicked()
         else:
             # przypisanie sterowania do sterowania poprzedniego
 
 
-            self.stan=self.kalman.licz(self.x_cam,self.y_cam,self.z_cam,self.yaw_cam) #
+            self.stan=self.kalman.licz(self.x_cam,self.y_cam,self.z_cam,self.roll_dron*pi/180,self.pitch_dron*pi/180,self.yaw_cam) #
 
             # self.vzcam=(self.z_cam-self.z_cam_p)/self.dt
             # self.z_cam_p=self.z_cam
             x=self.stan[0]
             y=self.stan[1]
             z=self.stan[2]
-            vx=self.stan[3]
-            vy=self.stan[4]
-            vz=self.stan[5]
-            alfa=self.stan[6]
-            valfa=self.stan[7]
+            roll=self.stan[3]
+            pitch=self.stan[4]
+            alfa=self.stan[5]
+            vx=self.stan[6]
+            vy=self.stan[7]
+            vz=self.stan[8]
+            vroll=self.stan[9]
+            vpitch=self.stan[10]
+            valfa=self.stan[11]
 
             self.x_dron=(self.x_target-x)*cos(alfa)+(self.y_target-y)*sin(alfa)
             self.y_dron=(self.y_target-y)*cos(alfa)-(self.x_target-x)*sin(alfa)
@@ -335,8 +346,8 @@ class dron(QtGui.QWidget):
             self.vx_dron=vx*cos(alfa)+vy*sin(alfa)
             self.vy_dron=vy*cos(alfa)-vx*sin(alfa)
             self.vz_dron=vz
-            self.yaw_dron=alfa
-            self.vyaw_dron=valfa
+            self.alfa_dron=alfa
+            self.valfa_dron=valfa
 
 
 
@@ -346,26 +357,27 @@ class dron(QtGui.QWidget):
             # self.pitch_control=fd(self.x_dron,self.vx_dron)
             # self.yaw_control=fyaw(alfa*180/pi,valfa*180/pi)
             # self.daneZ.e=self.z_dron
-            T,Y,R,P=sprzezenie.control(self.z_dron,self.vz_dron,alfa,self.x_dron,self.vx_dron,self.y_dron,self.vy_dron)
+            T,Y,R,P=sprzezenie.control(self.z_dron,self.vz_dron,alfa,valfa,self.x_dron,self.vx_dron,self.y_dron,self.vy_dron)
             self.thrust_control=T
             self.pitch_control=P
             self.roll_control=R
-            self.yaw_control=-Y
+            self.yaw_control=0#Y
             self.timeout=0
 
 
-        # self.thrust_control=20
-        # self.pitch_control=0.0
-        # self.roll_control=0.0
-        # self.yaw_control=30
-        self.control_package={
-            "thrust":self.thrust_control*600,
-            "pitch":self.pitch_control,
-            "roll":self.roll_control,
-            "yaw":self.yaw_control
-        }
-        if self.ui.cb_sendCtrl.isChecked():
-            self.control_data_sig.emit(self.control_package)
+            # self.thrust_control=20
+            # self.pitch_control=0.0
+            # self.roll_control=0.0
+            # self.yaw_control=30
+
+            self.control_package={
+                "thrust":self.thrust_control*600,
+                "pitch":self.pitch_control,
+                "roll":self.roll_control,
+                "yaw":self.yaw_control
+            }
+            if self.ui.cb_sendCtrl.isChecked():
+                self.control_data_sig.emit(self.control_package)
 
 
         # self.update_log_table()
@@ -373,7 +385,8 @@ class dron(QtGui.QWidget):
         str2=",".join(str(i) for i in self.stan)
         str3=",".join([str(self.pitch_control),str(self.roll_control),str(self.yaw_control),str(self.thrust_control)])
         str4=",".join([str(self.x_dron),str(self.y_dron),str(self.z_dron)])
-        self.strlist.append(",".join([str1,str2,str3,str4]))
+        str5=",".join([str(self.roll_dron),str(self.pitch_dron),str(self.yaw_dron)])
+        self.strlist.append(",".join([str1,str2,str3,str4,str5]))
 
 
 

@@ -31,13 +31,31 @@ subplot(3,1,1)
 plot(thrust)
 title('thrust')
 subplot(3,1,2)
-plot(zd)
+plot(zk)
 hold on
-plot(zeros(1,length(zd)),'--')
-title('z dron')
+plot(zeros(1,length(zk)),'--')
+title('z kalman')
 subplot(3,1,3)
-plot(vzk)
-title('Vz kalman')
+plot(z)
+title('z cam')
+
+figure(3)
+subplot(3,1,1)
+plot(roll)
+title('roll dreon')
+subplot(3,1,2)
+plot(yk)
+hold on
+plot(zeros(1,length(yk)),'--')
+% hold on
+% plot(zeros(1,length(zk)),'--')
+% title('z kalman')
+% subplot(3,1,3)
+% plot(z)
+% title('z cam')
+% 
+
+
 
 
 

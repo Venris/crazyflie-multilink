@@ -86,12 +86,12 @@ class Crazy(QObject):
         self.log = LogConfig(name="logs", period_in_ms=10)
         self.log.add_variable("stabilizer.roll", "float")
         self.log.add_variable("stabilizer.pitch", "float")
-        # self.log.add_variable("stabilizer.yaw", "float")
+        self.log.add_variable("stabilizer.yaw", "float")
         # self.log.add_variable("stabilizer.thrust", "float")
-        self.log.add_variable("motor.m1", "float")
-        self.log.add_variable("motor.m2", "float")
-        self.log.add_variable("motor.m3", "float")
-        self.log.add_variable("motor.m4", "float")
+        # self.log.add_variable("motor.m1", "float")
+        # self.log.add_variable("motor.m2", "float")
+        # self.log.add_variable("motor.m3", "float")
+        # self.log.add_variable("motor.m4", "float")
 
 
         try:
@@ -115,12 +115,12 @@ class Crazy(QObject):
         try:
             self.log_data["roll"]=data["stabilizer.roll"]
             self.log_data["pitch"]=data["stabilizer.pitch"]
-            # self.log_data["yaw"]=data["stabilizer.yaw"]
+            self.log_data["yaw"]=data["stabilizer.yaw"]
             # self.log_data["thrust"]=data["stabilizer.thrust"]
-            self.log_data["m1"]=data["motor.m1"]
-            self.log_data["m2"]=data["motor.m2"]
-            self.log_data["m3"]=data["motor.m3"]
-            self.log_data["m4"]=data["motor.m4"]
+            # self.log_data["m1"]=data["motor.m1"]
+            # self.log_data["m2"]=data["motor.m2"]
+            # self.log_data["m3"]=data["motor.m3"]
+            # self.log_data["m4"]=data["motor.m4"]
         except:
             print("blad logowania")
 
