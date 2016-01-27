@@ -1,4 +1,4 @@
-from numpy import cos
+from numpy import cos,pi
 
 def control(e_wys,Vwys,orient,vorient,e_x,Vx,e_y,Vy,roll, pitch,vroll,vpitch):
 
@@ -8,7 +8,7 @@ def control(e_wys,Vwys,orient,vorient,e_x,Vx,e_y,Vy,roll, pitch,vroll,vpitch):
     k1h=50
     k2h=53
     T1=60+k1h * e_wys - k2h*Vwys   # dron 40/2M k1=50,k2=53,ff=60
-    T=T1/(cos(roll)*cos(pitch))
+    T=T1/(cos(roll*pi/180)*cos(pitch*pi/180))
     if T>maxT:
         T=maxT
     elif T<minT:

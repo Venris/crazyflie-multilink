@@ -33,23 +33,23 @@ def fuzzyZ(ex, v):
     x = v;
     
     # zero
-    a = -0.2;
+    a = -1;
     b = 0;
-    c = 0.2;
+    c = 1;
     uv[1] = liczu(x,a,b,c,2);
     
     # w gore
     a = 0;
-    b = 0.2;
+    b = 1;
     uv[2] = liczu(x,a,b,c,3);
     
     # w dol
-    b = -0.2;
+    b = -1;
     c = 0;
     uv[0] = liczu(x,a,b,c,1);
     
     ## sterowanie
-    sterX = [50, 55, 65, 70, 80];
+    sterX = [55, 60, 65, 70, 80];
     
     for i in range(len(uz)):
         for j in range(len(uv)):
@@ -296,19 +296,4 @@ def fuzzyKat(ex,v):
     if Y<minY:
         Y=minY
 
-    return Y
-
-
-def sprzezenie(ex,v):
-
-    max1=10
-    min1=-max1
-    k1=5
-    k2=5
-    Y=k1*ex-k2*v
-
-    if Y>max1:
-        Y=max1
-    if Y<min1:
-        Y=min1
     return Y

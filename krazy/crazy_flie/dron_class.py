@@ -358,10 +358,15 @@ class dron(QtGui.QWidget):
             # self.yaw_control=fyaw(alfa*180/pi,valfa*180/pi)
             # self.daneZ.e=self.z_dron
             T,Y,R,P=sprzezenie.control(self.z_dron,self.vz_dron,alfa,valfa,self.x_dron,self.vx_dron,self.y_dron,self.vy_dron,roll,pitch,vroll,vpitch)
-            self.thrust_control=T
-            self.pitch_control=P
-            self.roll_control=R
-            self.yaw_control=0#Y
+            Tf=fz((self.z_dron)*100,self.vz_dron)
+            Rf=-fd((self.y_dron),self.vy_dron)
+            Pf=fd((self.x_dron),self.vx_dron)
+            Yf=fyaw((self.yaw_target-alfa)*180/pi,valfa)
+
+            self.thrust_control=Tf
+            self.pitch_control=Pf
+            self.roll_control=Rf
+            self.yaw_control=Yf
             self.timeout=0
 
 
