@@ -67,7 +67,7 @@ grid on
 subplot(2,1,2)
 plot(pitch_con)
 hold on
-plot(pitchd)
+plot(-pitchd)
 plot(xd*50)
 legend('pitch con','pitch dron','x')
 grid on
@@ -86,5 +86,14 @@ plot3(x(1),y(1),z(1),'.r')
 plot3(x(end),y(end),z(end),'.g')
 axis([-1,1,-1,1,0,2])
 grid on
-
+%%
+figure(6)
+subplot(2,1,1)
+plot(zk)
+grid on
+subplot(2,1,2)
+plot(thrust_cam)
+hold on
+plot(ones(1,length(thrust_cam))*mean(thrust_cam))
+grid on
 

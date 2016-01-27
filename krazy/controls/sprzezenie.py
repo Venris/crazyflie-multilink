@@ -28,8 +28,8 @@ def control(e_wys,Vwys,orient,vorient,e_x,Vx,e_y,Vy,roll, pitch,vroll,vpitch):
 
     # roll
     grR=15
-    k1r=1
-    k2r=1
+    k1r=0
+    k2r=0
     k3r=0.3
     k4r=0.5
 

@@ -115,6 +115,6 @@ if __name__ == '__main__':
         print i[0]
 
     if len(available) > 0:
-        le = MotorRampExample(available[0][0])
+        le = MotorRampExample("radio://127/2M")
     else:
         print "No Crazyflies found, cannot run example"

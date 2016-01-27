@@ -49,8 +49,11 @@ def fuzzyZ(ex, v):
     uv[0] = liczu(x,a,b,c,1);
     
     ## sterowanie
-    sterX = [55, 60, 65, 70, 80];
-    
+    # sterX = [55, 60, 65, 70, 80]; #DRON 40/2M
+    # sterX = [55, 60, 65, 70, 80];
+    sterX = [55, 60, 68, 70, 80];
+
+
     for i in range(len(uz)):
         for j in range(len(uv)):
             R[i][j] = uz[i] * uv[j];
@@ -262,7 +265,8 @@ def fuzzydron(ex, v):
     uv[0] = liczu(x,a,b,c,1);
 
     ## sterowanie
-    sterX = [-10, -5, 0, 5, 10];
+    # sterX = [-10, -5, 0, 5, 10];
+    sterX = [-15, -5, 0, 5, 15];
 
     for i in range(len(uz)):
         for j in range(len(uv)):

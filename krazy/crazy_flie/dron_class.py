@@ -52,7 +52,7 @@ class dron(QtGui.QWidget):
         # inicjalizacja danych zmq
         # pozycje
         self.strlist=[]
-        self.strlist.append("x,y,z,yaw,vzcam,xk,yk,zk,rollk,pitchk,yawk,vxk,vyk,vzk,vrollk,vpitchk,vyawk,pitch_con,roll_con,yaw_con,thrust_cam,xd,yd,zd,rolld,pitchd,yawd")
+        self.strlist.append("x,y,z,yaw,vzcam,xk,yk,zk,rollk,pitchk,yawk,vxk,vyk,vzk,vrollk,vpitchk,vyawk,pitch_con,roll_con,yaw_con,thrust_cam,xd,yd,zd,rolld,pitchd,yawd,xt,yt,zt,yawt")
 
         self.stan=np.zeros((1,8))
         self.isCorrect="0"
@@ -170,7 +170,7 @@ class dron(QtGui.QWidget):
 
     def saveFile(self):
         txt="\n".join(self.strlist)
-        f=open(name="log.csv",mode='w')
+        f=open(name="log_{}_{}.csv".format(self.id,time.strftime("%H_%M")),mode='w')
         f.write(txt)
         f.close()
         del self.strlist[1:]
@@ -358,17 +358,20 @@ class dron(QtGui.QWidget):
             # self.yaw_control=fyaw(alfa*180/pi,valfa*180/pi)
             # self.daneZ.e=self.z_dron
             T,Y,R,P=sprzezenie.control(self.z_dron,self.vz_dron,alfa,valfa,self.x_dron,self.vx_dron,self.y_dron,self.vy_dron,roll,pitch,vroll,vpitch)
-            Tf=fz((self.z_dron)*100,self.vz_dron)
+
+
+            Tf=fz((self.z_target-z)*100,self.vz_dron)
+
+
             Rf=-fd((self.y_dron),self.vy_dron)
             Pf=fd((self.x_dron),self.vx_dron)
             Yf=fyaw((self.yaw_target-alfa)*180/pi,valfa)
 
             self.thrust_control=Tf
-            self.pitch_control=Pf
-            self.roll_control=Rf
+            self.pitch_control=Pf-P
+            self.roll_control=Rf+R
             self.yaw_control=Yf
             self.timeout=0
-
 
             # self.thrust_control=60
             # self.pitch_control=0.0
@@ -391,7 +394,8 @@ class dron(QtGui.QWidget):
         str3=",".join([str(self.pitch_control),str(self.roll_control),str(self.yaw_control),str(self.thrust_control)])
         str4=",".join([str(self.x_dron),str(self.y_dron),str(self.z_dron)])
         str5=",".join([str(self.roll_dron),str(self.pitch_dron),str(self.yaw_dron)])
-        self.strlist.append(",".join([str1,str2,str3,str4,str5]))
+        str6=",".join([str(self.x_target),str(self.y_target),str(self.z_target),str(self.yaw_target)])
+        self.strlist.append(",".join([str1,str2,str3,str4,str5,str6]))
 
 
 
