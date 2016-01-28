@@ -136,7 +136,7 @@
              <item>
               <widget class="QLabel" name="l_theta_2">
                <property name="text">
-                <string>Kat: </string>
+                <string>Yaw: </string>
                </property>
               </widget>
              </item>
@@ -152,34 +152,34 @@
              </size>
             </property>
             <property name="title">
-             <string>Actual V</string>
+             <string>CF data</string>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_9">
              <item>
               <widget class="QLabel" name="l_vz_2">
                <property name="text">
-                <string>Vz</string>
+                <string>Thrust:</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="l_vx_2">
                <property name="text">
-                <string>Vx: </string>
+                <string>Roll:</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="l_vy_2">
                <property name="text">
-                <string>Vy: </string>
+                <string>Pitch:</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="l_vtheta_2">
                <property name="text">
-                <string>Vkat</string>
+                <string>Yaw:</string>
                </property>
               </widget>
              </item>
@@ -235,34 +235,34 @@
              </size>
             </property>
             <property name="title">
-             <string>Actual TRPY</string>
+             <string>Errors</string>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_11">
              <item>
               <widget class="QLabel" name="l_thrust_a_2">
                <property name="text">
-                <string>Thrust:</string>
+                <string>Ez:</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="l_roll_a_2">
                <property name="text">
-                <string>Roll:</string>
+                <string>Ex:</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="l_pitch_a_2">
                <property name="text">
-                <string>Pitch</string>
+                <string>Ey:</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="l_yaw_a_2">
                <property name="text">
-                <string>Yaw:</string>
+                <string>Eyaw:</string>
                </property>
               </widget>
              </item>
@@ -337,7 +337,7 @@
              <item>
               <widget class="QCheckBox" name="cb_sendCtrl">
                <property name="text">
-                <string>send ctrl</string>
+                <string>send control</string>
                </property>
                <property name="checked">
                 <bool>false</bool>
