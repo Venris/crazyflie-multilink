@@ -23,9 +23,7 @@ class Crazy(QObject):
         self.startup=True
         self.is_connected=False
         self.busy=False
-
         self.control_started=False
-
 
         # zmienna do wysylania logow
         self.log_data={"roll":0.0,"pitch":0.0,"yaw":0.0,"thrust":0.0,"m1":0.0,"m2":0.0,"m3":0.0,"m4":0.0}
@@ -50,8 +48,6 @@ class Crazy(QObject):
     # funkcja wywolywana w chwili odebrania informacji o podlaczeniu sie
     def connected(self,uri):
         self.is_connected=True
-
-
         print("Connected to {}".format(uri))
         self.log_thread()
         self.cf_connected.emit(self.is_connected)
@@ -67,14 +63,13 @@ class Crazy(QObject):
         if self.control_started:
             self.control.join(0.1)
 
+    # funkcja wywolywana w chwili przerwania transmisji
     def lost_connection(self,uri,var):
         print("disconnected from {}".format(uri))
         self.is_connected=False
         self.cf_connected.emit(self.is_connected)
         if self.control_started:
             self.control.join(0.1)
-        self.close()
-
 
     # funkcja  konczaca polaczenie
     def close(self):
@@ -92,7 +87,6 @@ class Crazy(QObject):
         # self.log.add_variable("motor.m2", "float")
         # self.log.add_variable("motor.m3", "float")
         # self.log.add_variable("motor.m4", "float")
-
 
         try:
             print "test 2"
@@ -129,7 +123,7 @@ class Crazy(QObject):
     def log_error(self,logconf, msg):
         ("error while loggoing {}\n{}".format(logconf.name,msg))
 
-    # zmiana ustawien sterowania
+    # zmiana ustawien sterowania - stara wersja - nieuzywana
     def update_ctrl(self,thrust,pitch,roll,yaw):
         # ("thrust | pitch | roll | yaw ")
         self.busy=True
@@ -140,6 +134,7 @@ class Crazy(QObject):
         self.yaw=yaw
         self.busy=False
 
+    # zmiana ustawien sterowania - aktualna wersja
     def update_ctrl_sig(self,data):
         # self.busy=True
         # print("{:.3f} | {:.3f} | {:.3f} | {:.3f}".format(data["thrust"],data["pitch"],data["roll"],data["yaw"]))
@@ -149,10 +144,8 @@ class Crazy(QObject):
         self.yaw=data["yaw"]
         # self.busy=False
 
-
     # watek wysylajacy sterowanie
     def send_ctrl(self):
-
         while self.is_connected:
             if not self.busy:
                 if self.thrust > 60000:
@@ -165,7 +158,6 @@ class Crazy(QObject):
                     self.startup=False
                 # self.cf.commander.set_client_xmode(False)
                 self.cf.commander.send_setpoint(self.roll, self.pitch, self.yaw, self.thrust)
-
                 sleep(0.01)
 
 

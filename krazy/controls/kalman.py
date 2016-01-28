@@ -1,7 +1,7 @@
 import time
 import numpy as np
 
-class kalman:
+class kalman6:
     def __init__(self):
         self.stan=np.matrix([0,0,0,0,0,0]).transpose()
         self.A=np.matrix([[1.0,0,0,0.01,0,0],
@@ -50,7 +50,6 @@ class kalman:
         self.P=(np.eye(6)-self.K*self.H)*self.P
 
         return self.stan
-
 
 class kalman8:
     def __init__(self):
@@ -111,8 +110,6 @@ class kalman8:
         self.P=(np.eye(8)-self.K*self.H)*self.P
 
         return self.stan
-
-
 
 class kalman12:
     def __init__(self):

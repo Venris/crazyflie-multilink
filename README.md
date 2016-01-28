@@ -1,3 +1,26 @@
+# Multi Crazyflie control client
+
+The Multi Crazyflie control client (written and tested on Windows 10 using Python 2.7)
+
+To run you will probably need use PyCharm Community Edition IDE and add some folders as source:
+
+File > Settings > Project > Project Structure:
+
+``` lib\```
+
+``` krazy\controls\```
+
+``` krazy\crazy_flie\```
+
+``` krazy\gui\```
+
+Run with:
+```
+C:\Python27\python krazy\program.py
+```
+
+All requirments from Crazyflie PC client are also needed
+
 # Crazyflie PC client
 
 The Crazyflie PC client enables flashing and controlling the Crazyflie.

@@ -1,4 +1,5 @@
 def PID(c,controlValue,dt):
+    # Aktualnie nie wykorzystywane
     # print c.e
     # c.e=c.ref-controlValue
     # print c.e

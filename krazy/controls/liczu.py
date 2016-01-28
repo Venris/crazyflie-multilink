@@ -1,5 +1,5 @@
 def  liczu(x,a,b,c, index):
-    
+    # funkcja pomocnicza - fuzzy
     if index == 2 :
         if (x >= a) and (x <= b):
             u = (x-a)/ (b-a)

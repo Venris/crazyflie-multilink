@@ -1,4 +1,5 @@
 class controlData:
+    # aktualnie nie wykorzystywane
     def __init__(self):
 
         # zmienne

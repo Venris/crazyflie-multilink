@@ -18,11 +18,9 @@ class dron(QtGui.QWidget):
         # ustawienie gui
         self.ui=Ui_Dron()
         self.ui.setupUi(self)
-        self.ui.tabWidget.setCurrentIndex(1)
-        # time.sleep(1)
-        # self.ui.tabWidget.setCurrentIndex(0)
+        self.ui.tabWidget.setCurrentIndex(0)
 
-        #ustawienia drona
+        #inicjalizacja ustawien drona
         self.uri=uri
         self.id=id
         self.cf=cf(self)
@@ -33,47 +31,39 @@ class dron(QtGui.QWidget):
         self.update_gui_thread.timeout.connect(self.update_interface)
         self.update_gui_thread.start(100)
 
-        # liczenie sterowania
+        # ustawienia watku wyliczjacego sterowanie
         self.update_control_thread=QTimer()
         self.update_control_thread.timeout.connect(self.update_control)
         self.timeout=0
-
-
-
-        self.set_signals()
+        self.set_signals() # ustawienie sygnalow PyQt
         self.set_variables()
 
     def set_variables(self):
         # inicjalizacja filtru kalmana
         self.kalman=kalman12()
-        self.z_cam_p=0
-        self.vzcam=0
+        self.stan=np.zeros((1,12))
 
-        # inicjalizacja danych zmq
-        # pozycje
+        # zmienna logujaca dane
         self.strlist=[]
         self.strlist.append("x,y,z,yaw,vzcam,xk,yk,zk,rollk,pitchk,yawk,vxk,vyk,vzk,vrollk,vpitchk,vyawk,pitch_con,roll_con,yaw_con,thrust_cam,xd,yd,zd,rolld,pitchd,yawd,xt,yt,zt,yawt")
 
-        self.stan=np.zeros((1,8))
+        # dane otryzmywane z kamer
         self.isCorrect="0"
-
+        self.z_cam_p=0
+        self.vzcam=0
         self.x_cam=0
         self.y_cam=0
         self.z_cam=0
         self.yaw_cam=0
         self.dt=-1
 
-
-
-        # x,y w ukladzie drona
+        # x,y,z w ukladzie drona
+        # pozycje
         self.x_dron=0
         self.y_dron=0
         self.z_dron=0
 
-        self.x_dron_target=0
-        self.y_dron_target=0
-        self.z_dron_target=0
-
+        #predkosci
         self.vx_dron=0
         self.vy_dron=0
         self.vz_dron=0
@@ -82,11 +72,18 @@ class dron(QtGui.QWidget):
         self.alfa_dron=0
         self.valfa_dron=0
 
+        # dane otrzymane z drona
         self.thrust_dron=0
         self.roll_dron=0
         self.pitch_dron=0
         self.yaw_dron=0
         self.vyaw_dron=0
+
+        # wartosci silnikow
+        self.m1=0.0
+        self.m2=0.0
+        self.m3=0.0
+        self.m4=0.0
 
         # inicjalizacja zmiennych do sterowania
         self.thrust_control=0.0
@@ -114,61 +111,20 @@ class dron(QtGui.QWidget):
 
         self.ctrl_isTrue=False
 
-
-        self.daneX=controlData()
-        self.daneX.K=10.0
-        # self.daneX.Ti=0.1
-        self.daneX.Td=0.15
-        self.daneX.calka_max=1.0
-        self.daneX.u_min=-10
-        self.daneX.u_max=10
-
-        self.daneY=controlData()
-        self.daneY.K=10.0
-        # self.daneY.Ti=0.1
-        self.daneY.Td=0.15
-        self.daneY.calka_max=1.0
-        self.daneY.u_min=-10
-        self.daneY.u_max=10
-
-        self.daneZ=controlData()
-        self.daneZ.K=50
-        self.daneZ.Ti=0.1
-        self.daneZ.Td=53
-        self.daneZ.calka_max=1
-        self.daneZ.u_min=50
-        self.daneZ.u_max=80
-        self.daneZ.FF=60
-
-        self.daneTheta=controlData()
-        self.daneTheta.K=1.0
-        # self.daneTheta.Ti=0.1
-        self.daneTheta.Td=0.15
-        self.daneTheta.calka_max=1.0
-        self.daneTheta.u_max=20
-        self.daneTheta.u_min=-20
-
-        self.m1=0.0
-        self.m2=0.0
-        self.m3=0.0
-        self.m4=0.0
-
-
     def set_signals(self):
+        # ustawienie interfejsu
         self.ui.pb_conn_2.clicked.connect(self.connect_clicked)
         self.ui.pb_disc_2.clicked.connect(self.disconnect_clicked)
         self.ui.pb_start_2.clicked.connect(self.start_clicked)
         self.ui.pb_stop_2.clicked.connect(self.stop_clicked)
         self.ui.pb_update_2.clicked.connect(self.update_clicked)
-
         self.ui.pb_save.clicked.connect(self.saveFile)
-
 
         self.cf.cf_connected.connect(self.connected)
         self.cf.cf_logs.connect(self.log_recv)
 
-
     def saveFile(self):
+        # zapisywannie loga do .csv
         txt="\n".join(self.strlist)
         f=open(name="log_{}_{}.csv".format(self.id,time.strftime("%H_%M")),mode='w')
         f.write(txt)
@@ -178,7 +134,7 @@ class dron(QtGui.QWidget):
         print("saved")
 
     def log_recv(self,data):
-        # print('log rcv')
+        # zapisywanie danych otrzymanych od drona
         self.thrust_dron=data["thrust"]
         self.roll_dron=data["roll"]
         self.pitch_dron=data["pitch"]
@@ -188,8 +144,8 @@ class dron(QtGui.QWidget):
         self.m3=data["m3"]
         self.m4=data["m4"]
 
-
     def connected(self,status):
+        #funkcja wykonywana po polaczeniu z dronem
             if status:
                 self.ui.l_conn.setText("Connected to {}".format(self.uri))
                 self.ui.pb_conn_2.setEnabled(False)
@@ -204,43 +160,43 @@ class dron(QtGui.QWidget):
                 self.ui.gb_control_2.setEnabled(False)
 
     def disconnect_clicked(self):
+        # wcisniecie przycisku Disconnect
         self.cf.close()
         self.stop_clicked()
 
     def connect_clicked(self):
+        # wcisniecie przycisku Disconnect
         self.ui.l_conn.setText("Connecting to {}".format(self.uri))
         self.cf.connect(self.uri)
 
     def update_interface(self):
-        ## labele od zmq
-        # pozycje
+        # zmiana dynych w interfejsie
+        # pozycje z kamer
         self.ui.l_x_2.setText("x: {:.3f}".format(self.x_cam))
         self.ui.l_y_2.setText("y: {:.3f}".format(self.y_cam))
         self.ui.l_z_2.setText("z: {:.3f}".format(self.z_cam))
         self.ui.l_theta_2.setText("yaw: {:.3f}".format(self.yaw_cam))
 
-        # predkosci
-        self.ui.l_vx_2.setText("thrust: {:.3f}".format(self.thrust_dron))
-        self.ui.l_vy_2.setText("roll: {:.3f}".format(self.roll_dron))
-        self.ui.l_vz_2.setText("pitch: {:.3f}".format(self.pitch_dron))
+        # dane pobrane z drona
+        self.ui.l_vx_2.setText("thrust: {:.3f}".format(self.roll_dron))
+        self.ui.l_vy_2.setText("roll: {:.3f}".format(self.pitch_dron))
+        self.ui.l_vz_2.setText("pitch: {:.3f}".format(self.thrust_dron))
         self.ui.l_vtheta_2.setText("yaw: {:.3f}".format(self.yaw_dron))
 
-        ## labele od cf
+        # Wyliczone bledy
         self.ui.l_thrust_a_2.setText("Ez: {}".format(self.z_dron))
         self.ui.l_roll_a_2.setText("Ex: {}".format(self.x_dron))
         self.ui.l_pitch_a_2.setText("Ey: {}".format(self.y_dron))
         self.ui.l_yaw_a_2.setText("Eyaw: {}".format(self.alfa_dron))
 
-        # labele od sterowania
+        # wyliczone wartosci sterowania
         self.ui.l_thrust_2.setText("Thrust: {:}".format(self.thrust_control))
         self.ui.l_roll_2.setText("Roll: {:}".format(self.roll_control))
         self.ui.l_pitch_2.setText("Pitch: {:}".format(self.pitch_control))
         self.ui.l_yaw_2.setText("Yaw: {:}".format(self.yaw_control))
 
-
-        #wypelnianie tabelek logow
-
     def update_log_table(self):
+    # funkcja to wysietlania logow w aplikacji - aktualnie nie wykorzystywana
         self.ui.table_log.currentRow()
         currentRowCount = self.ui.table_log.rowCount() #necessary even when there are no rows in the table
         self.ui.table_log.insertRow(currentRowCount)
@@ -271,6 +227,7 @@ class dron(QtGui.QWidget):
         self.ui.table_log.resizeColumnsToContents()
 
     def start_clicked(self):
+        # funckja wykonywana po wcisnieciu przycisku start
         if not self.ctrl_isTrue:
             self.ctrl_isTrue=True
             self.ui.pb_start_2.setText("stop")
@@ -284,6 +241,7 @@ class dron(QtGui.QWidget):
             self.stop_clicked()
 
     def stop_clicked(self):
+        # funckja wykonywana po wcisnieciu przycisku stop
         self.ui.pb_start_2.setEnabled(True)
         self.ui.pb_stop_2.setEnabled(False)
         self.control_package={
@@ -296,13 +254,16 @@ class dron(QtGui.QWidget):
         self.update_control_thread.stop()
 
     def update_clicked(self):
+        # funckja wykonywana po wcisnieciu przycisku update
         self.x_target=float(self.ui.en_x_2.text())
         self.y_target=float(self.ui.en_y_2.text())
         self.z_target=float(self.ui.en_z_2.text())
         self.yaw_target=float(self.ui.en_theta_2.text())
 
     def update_control(self):
+        # watek liczacy sterowanie
         vzcam=0
+        # zachowanie poprzednich wartosci sterowania jesli pojawi sie blad odczytu z kamer
         if (self.isCorrect==0.0) :
             self.thrust_control=self.thrust_control_previous
             self.roll_control=self.roll_control_previous
@@ -320,13 +281,10 @@ class dron(QtGui.QWidget):
                 self.control_data_sig.emit(self.control_package)
                 self.stop_clicked()
         else:
-            # przypisanie sterowania do sterowania poprzedniego
 
-
+            # wyliczenie danych z filtru kalmna
             self.stan=self.kalman.licz(self.x_cam,self.y_cam,self.z_cam,self.roll_dron,self.pitch_dron,self.yaw_cam) #
 
-            # self.vzcam=(self.z_cam-self.z_cam_p)/self.dt
-            # self.z_cam_p=self.z_cam
             x=self.stan[0]
             y=self.stan[1]
             z=self.stan[2]
@@ -349,35 +307,23 @@ class dron(QtGui.QWidget):
             self.alfa_dron=alfa
             self.valfa_dron=valfa
 
-
-
-
-            # self.thrust_control=fz(self.z_dron,self.vz_dron)
-            # self.roll_control=fd(self.y_dron,self.vy_dron)
-            # self.pitch_control=fd(self.x_dron,self.vx_dron)
-            # self.yaw_control=fyaw(alfa*180/pi,valfa*180/pi)
-            # self.daneZ.e=self.z_dron
+            # obliczenie sterowanie wykorzystujac sprzezenie od stanu
             T,Y,R,P=sprzezenie.control(self.z_dron,self.vz_dron,alfa,valfa,self.x_dron,self.vx_dron,self.y_dron,self.vy_dron,roll,pitch,vroll,vpitch)
 
-
+            # obliczenie sterowanie wykorzystujac fuzzy logic
             Tf=fz((self.z_target-z)*100,self.vz_dron)
-
-
             Rf=-fd((self.y_dron),self.vy_dron)
             Pf=fd((self.x_dron),self.vx_dron)
             Yf=fyaw((self.yaw_target-alfa)*180/pi,valfa)
 
+            # wybrane wartosci sterowania
             self.thrust_control=Tf
             self.pitch_control=Pf-P
             self.roll_control=Rf+R
             self.yaw_control=Yf
             self.timeout=0
 
-            # self.thrust_control=60
-            # self.pitch_control=0.0
-            # self.roll_control=0.0
-            # self.yaw_control=30
-
+            # wyslanie sterowania do drona
             self.control_package={
                 "thrust":self.thrust_control*600,
                 "pitch":self.pitch_control,
@@ -387,8 +333,7 @@ class dron(QtGui.QWidget):
             if self.ui.cb_sendCtrl.isChecked():
                 self.control_data_sig.emit(self.control_package)
 
-
-        # self.update_log_table()
+        # logowanie danych
         str1=",".join([str(self.x_cam),str(self.y_cam),str(self.z_cam),str(self.yaw_cam),str(self.vzcam)])
         str2=",".join(str(i) for i in self.stan)
         str3=",".join([str(self.pitch_control),str(self.roll_control),str(self.yaw_control),str(self.thrust_control)])
@@ -397,8 +342,7 @@ class dron(QtGui.QWidget):
         str6=",".join([str(self.x_target),str(self.y_target),str(self.z_target),str(self.yaw_target)])
         self.strlist.append(",".join([str1,str2,str3,str4,str5,str6]))
 
-
-
+        # przypisanie poprzedniego sterowania
         self.thrust_control_previous=self.thrust_control
         self.pitch_control_previous=self.pitch_control
         self.roll_control_previous=self.roll_control

@@ -4,6 +4,7 @@ from time import time
 
 
 class zmq_thread(QThread):
+    # watek odbierajacy dane z ZMQ
     zmq_log=pyqtSignal(list)
     def __init__(self,socket):
         QThread.__init__(self)

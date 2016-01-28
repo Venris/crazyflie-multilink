@@ -9,6 +9,7 @@ conf/*
 
 # logs
 krazy/*.csv
+krazy/*.m
 
 # Eclipse settings
 .project
